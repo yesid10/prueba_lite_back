@@ -1,0 +1,23 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.product import Product
+from app.schemas.product import ProductCreate, ProductResponse
+from app.utils.deps import admin_required
+
+router = APIRouter()
+
+@router.post("/", response_model=ProductResponse)
+def create_product(product: ProductCreate, db: Session = Depends(get_db), _: str = Depends(admin_required)):
+    db_product = db.query(Product).filter(Product.code == product.code).first()
+    if db_product:
+        raise HTTPException(status_code=400, detail="Producto ya existe")
+    new_product = Product(**product.dict())
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
+
+@router.get("/", response_model=list[ProductResponse])
+def get_products(db: Session = Depends(get_db)):
+    return db.query(Product).all()
