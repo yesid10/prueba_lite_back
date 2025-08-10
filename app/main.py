@@ -24,3 +24,6 @@ app.include_router(company.router, prefix="/companies", tags=["Companies"])
 app.include_router(product.router, prefix="/products", tags=["Products"])
 app.include_router(inventory.router, prefix="/inventory", tags=["Inventory"])
 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
